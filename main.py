@@ -25,7 +25,7 @@ for i in range(3):
     urls.append(url)
 
 process_url_clicked = st.sidebar.button('Process URLs')
-file_path = "vector_store.pkl"
+dir_path = "faiss_index_dir"
 
 main_placeholder = st.empty()
 if process_url_clicked:
@@ -46,17 +46,23 @@ if process_url_clicked:
     main_placeholder.text('Embedding Data...')
     vector_store = FAISS.from_documents(chunks, embeddings)
 
-    vector_store.save_local("faiss_index_dir")
+    vector_store.save_local(dir_path)
 
 query = main_placeholder.text_input("Question: ")
-if query:
-    if os.path.exists(file_path):
+search_clicked = st.button("Search")
+
+if search_clicked and query:
+    print(query)
+    if os.path.exists(dir_path):
+        print(dir_path)
         embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
         vector_store = FAISS.load_local("faiss_index_dir", embeddings=embeddings, allow_dangerous_deserialization=True)
         retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k":4})
         model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.2)
         chain = RetrievalQAWithSourcesChain.from_llm(llm=model, retriever=retriever)
+        print(chain)
         response = chain({"question": query}, return_only_outputs=True)
+        print(response)
 
         st.header('Answer')
         st.write(response['answer'])
