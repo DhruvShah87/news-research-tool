@@ -6,7 +6,6 @@ tiktoken
 faiss-cpu
 libmagic
 python-magic
-python-magic-bin
 langchain-community
 langchain-google-genai
 google-ai-generativelanguage
